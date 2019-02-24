@@ -13,8 +13,6 @@ import wait from '../__testutils__/wait';
 import { getMarkupFromTree } from '../getMarkupFromTree';
 import { QueryHookOptions, useQuery } from '../useQuery';
 
-jest.mock('../internal/actHack');
-
 const USER_QUERY = gql`
   {
     currentUser {

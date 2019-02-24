@@ -1,5 +1,5 @@
 {
-  "name": "react-apollo-hooks",
+  "name": "@speedlo/react-apollo-hooks",
   "version": "0.4.5",
   "description": "",
   "sideEffects": false,
@@ -11,10 +11,10 @@
     "lib"
   ],
   "scripts": {
-    "build:cjs": "rimraf lib && babel src --extensions '.ts' --extensions '.tsx' --ignore '**/__tests__' --ignore '**/__testutils__' -d lib",
-    "build:es": "rimraf es && cross-env ES_MODULES=true babel src --extensions '.ts' --extensions '.tsx' --ignore '**/__tests__' --ignore '**/__testutils__' -d es",
+    "build:cjs": "rimraf lib && tsc -p tsconfig.build.json --outDir lib -m commonjs",
+    "build:es": "rimraf es && tsc -p tsconfig.build.json --outDir es -m ESNext",
     "build:typings": "tsc -p tsconfig.typings.json",
-    "build": "npm run build:cjs && npm run build:es && npm run build:typings",
+    "build": "run-p build:cjs build:es && npm run build:typings",
     "typings-check": "tsc --noEmit",
     "format-check": "prettier --list-different \"**/*.{js,ts,tsx}\"",
     "format": "prettier --write \"**/*.{js,ts,tsx}\"",
@@ -23,11 +23,14 @@
     "test": "jest"
   },
   "author": "Daniel Trojanowski",
+  "maintainers": [
+    "Daniel K. <fredyc.@seznam.cz>"
+  ],
   "license": "MIT",
-  "homepage": "https://github.com/trojanowski/react-apollo-hooks#readme",
+  "homepage": "https://github.com/fredyc/react-apollo-hooks#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/trojanowski/react-apollo-hooks.git"
+    "url": "https://github.com/fredyc/react-apollo-hooks.git"
   },
   "jest": {
     "setupTestFrameworkScriptFile": "./src/__testutils__/setupTests.ts",
@@ -68,47 +71,39 @@
     ]
   },
   "peerDependencies": {
-    "apollo-client": "*",
-    "graphql": "*",
-    "react": "^16.8.0"
-  },
-  "dependencies": {
-    "lodash": "^4.17.11"
+    "apollo-client": "2",
+    "graphql": "14",
+    "react": "^16.8.0 || 16.9.0-alpha.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.5",
-    "@babel/preset-env": "^7.1.0",
-    "@babel/preset-react": "^7.0.0",
-    "@babel/preset-typescript": "^7.1.0",
     "@types/graphql": "^14.0.3",
     "@types/jest": "^23.3.10",
-    "@types/lodash": "^4.14.119",
     "@types/react": "^16.8.2",
     "@types/react-dom": "^16.8.0",
     "apollo-cache-inmemory": "^1.3.11",
     "apollo-client": "^2.4.7",
     "apollo-link": "^1.2.4",
     "apollo-link-mock": "^1.0.1",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^23.6.0",
     "cross-env": "^5.2.0",
     "graphql": "^14.0.2",
     "graphql-tag": "^2.10.0",
     "husky": "^1.2.0",
     "jest": "^23.6.0",
     "jest-dom": "^2.1.1",
+    "jest-mock-console": "^0.4.2",
     "jest-react-profiler": "^0.1.3",
     "lint-staged": "^8.1.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "^1.15.2",
-    "react": "16.8.1",
-    "react-dom": "16.8.1",
-    "react-testing-library": "^5.5.3",
+    "react": "16.9.0-alpha.0",
+    "react-dom": "16.9.0-alpha.0",
+    "react-hooks-testing-library": "^0.4.1",
+    "react-testing-library": "^6.1.2",
     "rimraf": "^2.6.2",
     "standard-version": "^4.4.0",
     "tslint": "^5.12.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-react": "^3.6.0",
-    "typescript": "^3.2.2"
+    "typescript": "3.2.2"
   }
 }

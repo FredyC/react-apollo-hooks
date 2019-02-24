@@ -8,7 +8,7 @@ import { DocumentNode } from 'graphql';
 import { useEffect, useRef, useState } from 'react';
 
 import { useApolloClient } from './ApolloContext';
-import actHack from './internal/actHack';
+import { ApolloOperationError } from './ApolloOperationError';
 import { Omit, objToKey } from './utils';
 
 export type OnSubscriptionData<TData> = (
@@ -49,18 +49,11 @@ export function useSubscription<
   const onSubscriptionDataRef = useRef<
     OnSubscriptionData<TData> | null | undefined
   >(null);
-  const [result, setResultBase] = useState<SubscriptionHookResult<TData>>({
+  const [result, setResult] = useState<SubscriptionHookResult<TData>>({
     loading: true,
   });
 
   onSubscriptionDataRef.current = onSubscriptionData;
-
-  function setResult(newResult: SubscriptionHookResult<TData>) {
-    // A hack to get rid React warnings during tests.
-    actHack(() => {
-      setResultBase(newResult);
-    });
-  }
 
   useEffect(
     () => {
@@ -88,7 +81,11 @@ export function useSubscription<
             }
           },
           error => {
-            setResult({ loading: false, data: result.data, error });
+            setResult({
+              data: result.data,
+              error: new ApolloOperationError(error, query, options.variables),
+              loading: false,
+            });
           }
         );
       return () => {

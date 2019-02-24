@@ -6,11 +6,10 @@ import React from 'react';
 import { act, cleanup, render } from 'react-testing-library';
 
 import { ApolloProvider, useSubscription } from '..';
+import { isSubscriptionError } from '../ApolloOperationError';
 import createClient from '../__testutils__/createClient';
 import { SAMPLE_TASKS } from '../__testutils__/data';
 import wait from '../__testutils__/wait';
-
-jest.mock('../internal/actHack');
 
 const TASKS_SUBSCRIPTION = gql`
   subscription NewTasks {
@@ -111,7 +110,8 @@ it('should return the subscription error', async () => {
       expect(data).toBeUndefined();
     } else if (count === 1) {
       expect(loading).toBe(false);
-      expect(error).toEqual(new Error('error occurred'));
+      expect(error).toBeTruthy();
+      expect(isSubscriptionError(error!)).toBe(true);
       expect(data).toBeUndefined();
     }
     count++;
