@@ -1,34 +1,23 @@
+import { OperationTypeNode } from 'graphql';
 import React, { ErrorInfo } from 'react';
-import { isMutationError } from './ApolloMutationError';
-import { isQueryError } from './ApolloQueryError';
+import { isOperationError } from './ApolloOperationError';
 
 interface IProps {
-  queryFallback?: React.ReactElement<any>;
-  mutationFallback?: React.ReactElement<any>;
-  shouldBailOnQuery?: boolean;
-  shouldBailOnMutation?: boolean;
+  fallback: React.ReactType<{ error: Error; onRetry: () => void }>;
+  shouldBailOnType: ReadonlyArray<OperationTypeNode>;
   onError(error: Error, errorInfo: ErrorInfo): void;
 }
 
 interface IState {
-  hasQueryError: boolean;
-  hasMutationError: boolean;
+  error?: Error;
 }
 
 export class BasicErrorHandler extends React.Component<IProps, IState> {
   static getDerivedStateFromError(error: Error) {
-    return {
-      hasMutationError: isMutationError(error),
-      hasQueryError: isQueryError(error),
-    };
+    return { error };
   }
 
-  state: IState;
-
-  constructor(props: IProps) {
-    super(props);
-    this.state = { hasQueryError: false, hasMutationError: false };
-  }
+  state: IState = {};
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     if (this.props.onError) {
@@ -36,20 +25,22 @@ export class BasicErrorHandler extends React.Component<IProps, IState> {
     }
   }
 
+  onRetry = () => {
+    this.setState({ error: undefined });
+  };
+
   render() {
-    const { hasQueryError, hasMutationError } = this.state;
-    const {
-      shouldBailOnQuery = false,
-      shouldBailOnMutation = false,
-      queryFallback,
-      mutationFallback,
-      children,
-    } = this.props;
-    if (shouldBailOnQuery && hasQueryError && queryFallback) {
-      return queryFallback;
-    }
-    if (shouldBailOnMutation && hasMutationError && mutationFallback) {
-      return mutationFallback;
+    const { error } = this.state;
+    const { shouldBailOnType, fallback, children } = this.props;
+    if (error && isOperationError(error)) {
+      const type = error.operationType;
+      if (type && shouldBailOnType.indexOf(type) >= 0) {
+        return React.createElement(
+          fallback,
+          { error, onRetry: this.onRetry },
+          children
+        );
+      }
     }
     return children;
   }
