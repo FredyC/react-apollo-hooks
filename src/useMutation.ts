@@ -25,7 +25,7 @@ export type MutationUpdaterFn<TData = Record<string, any>> = (
 export interface BaseMutationHookOptions<TData, TVariables>
   extends Omit<MutationOptions<TData, TVariables>, 'mutation' | 'update'> {
   update?: MutationUpdaterFn<TData>;
-  throwMode?: 'none' | 'async';
+  rethrow?: boolean;
 }
 
 export interface MutationHookOptions<TData, TVariables, TCache = object>
@@ -68,7 +68,7 @@ export function useMutation<TData, TVariables = OperationVariables>(
     getInitialState
   );
 
-  const { throwMode = 'async', ...options } = baseOptions;
+  const { rethrow = true, ...options } = baseOptions;
 
   const mergeResult = (partialResult: Partial<MutationResult<TData>>) => {
     // A hack to get rid React warnings during tests.
@@ -155,7 +155,7 @@ export function useMutation<TData, TVariables = OperationVariables>(
           })
           .catch(err => {
             onMutationError(err, mutationId);
-            if (throwMode === 'async') {
+            if (rethrow) {
               reject(err);
             }
             resolve(({} as unknown) as ExecutionResult<TData>);
