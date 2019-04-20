@@ -102,10 +102,14 @@ export function useMutation<TData, TVariables = OperationVariables>(
     }
   };
 
-  const onMutationError = (error: ApolloError, mutationId: number) => {
+  const onMutationError = (
+    error: ApolloError,
+    mutationId: number,
+    mutationVariables?: TVariables
+  ) => {
     if (isMostRecentMutation(mutationId)) {
       mergeResult({
-        error: new ApolloOperationError(error, mutation, baseOptions),
+        error: new ApolloOperationError(error, mutation, mutationVariables),
         hasError: true,
         loading: false,
       });
@@ -114,11 +118,16 @@ export function useMutation<TData, TVariables = OperationVariables>(
 
   const onMutationCompleted = (
     response: ExecutionResult<TData>,
-    mutationId: number
+    mutationId: number,
+    mutationVariables?: TVariables
   ) => {
     const { data, errors } = response;
     if (errors && errors.length > 0) {
-      onMutationError(new ApolloError({ graphQLErrors: errors }), mutationId);
+      onMutationError(
+        new ApolloError({ graphQLErrors: errors }),
+        mutationId,
+        mutationVariables
+      );
       return;
     }
 
@@ -139,7 +148,7 @@ export function useMutation<TData, TVariables = OperationVariables>(
         // merge together variables from baseOptions (if specified)
         // and the execution
         const mutateVariables = options.variables
-          ? { ...mutateOptions.variables, ...options.variables }
+          ? { ...options.variables, ...mutateOptions.variables }
           : mutateOptions.variables;
 
         client
@@ -150,11 +159,11 @@ export function useMutation<TData, TVariables = OperationVariables>(
             variables: mutateVariables,
           })
           .then(response => {
-            onMutationCompleted(response, mutationId);
+            onMutationCompleted(response, mutationId, mutateVariables);
             resolve(response as ExecutionResult<TData>);
           })
           .catch(err => {
-            onMutationError(err, mutationId);
+            onMutationError(err, mutationId, mutateVariables);
             if (rethrow) {
               reject(err);
               return;

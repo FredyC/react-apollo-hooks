@@ -5,13 +5,9 @@ import {
   OperationTypeNode,
 } from 'graphql';
 
-interface OperationOptions extends Record<string, any> {
-  variables?: OperationVariables;
-}
-
 export class ApolloOperationError extends ApolloError {
   readonly operationDoc: DocumentNode;
-  readonly operationOptions: OperationOptions;
+  readonly operationVariables: OperationVariables;
   readonly operationDefinition: OperationDefinitionNode | undefined;
   readonly operationName: string | undefined;
   readonly operationType: OperationTypeNode | undefined;
@@ -19,11 +15,11 @@ export class ApolloOperationError extends ApolloError {
   constructor(
     apolloError: ApolloError,
     doc: DocumentNode,
-    options: OperationOptions
+    variables: OperationVariables = {}
   ) {
     super({ ...apolloError });
     this.operationDoc = doc;
-    this.operationOptions = options;
+    this.operationVariables = variables;
     this.operationDefinition = doc.definitions.find(
       definition =>
         definition.kind === 'OperationDefinition' &&
