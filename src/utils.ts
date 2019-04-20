@@ -1,6 +1,12 @@
-import isPlainObject from 'lodash/isPlainObject';
-
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+export function isPlainObject(value: any): boolean {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+  const proto = Object.getPrototypeOf(value);
+  return !proto || proto === Object.prototype;
+}
 
 export function objToKey<T extends Record<string, any>>(obj: T): T | string {
   if (!isPlainObject(obj)) {
