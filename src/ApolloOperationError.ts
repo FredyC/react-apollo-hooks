@@ -17,7 +17,7 @@ export class ApolloOperationError extends ApolloError {
     doc: DocumentNode,
     variables: OperationVariables = {}
   ) {
-    super({ ...apolloError });
+    super(apolloError ? { ...apolloError } : {});
     this.operationDoc = doc;
     this.operationVariables = variables;
     this.operationDefinition = doc.definitions.find(
@@ -36,7 +36,8 @@ export class ApolloOperationError extends ApolloError {
 
 export function isOperationError(err: Error): err is ApolloOperationError {
   return (
-    err.hasOwnProperty('operationDoc') && err.hasOwnProperty('operationOptions')
+    err.hasOwnProperty('operationDoc') &&
+    err.hasOwnProperty('operationVariables')
   );
 }
 

@@ -16,8 +16,6 @@ import createClient from '../__testutils__/createClient';
 import { getMarkupFromTree } from '../getMarkupFromTree';
 import { QueryHookOptions, useQuery } from '../useQuery';
 
-jest.mock('../internal/actHack');
-
 const AUTH_QUERY = gql`
   {
     isAuthorized

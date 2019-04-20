@@ -6,12 +6,11 @@ import ApolloClient, {
 } from 'apollo-client';
 import { FetchResult } from 'apollo-link';
 import { DocumentNode, GraphQLError } from 'graphql';
-import actHack from './internal/actHack';
 
 import React from 'react';
 import { useApolloClient } from './ApolloContext';
 import { ApolloOperationError } from './ApolloOperationError';
-import { Omit, objToKey } from './utils';
+import { Omit } from './utils';
 
 export type MutationUpdaterFn<TData = Record<string, any>> = (
   proxy: DataProxy,
@@ -71,13 +70,10 @@ export function useMutation<TData, TVariables = OperationVariables>(
   const { rethrow = true, ...options } = baseOptions;
 
   const mergeResult = (partialResult: Partial<MutationResult<TData>>) => {
-    // A hack to get rid React warnings during tests.
-    actHack(() => {
-      setResult(prev => ({
-        ...prev,
-        ...partialResult,
-      }));
-    });
+    setResult(prev => ({
+      ...prev,
+      ...partialResult,
+    }));
   };
 
   // reset state if client instance changes
@@ -139,41 +135,40 @@ export function useMutation<TData, TVariables = OperationVariables>(
     }
   };
 
-  const runMutation = React.useCallback(
-    (mutateOptions: MutationHookOptions<TData, TVariables> = {}) => {
-      return new Promise((resolve, reject) => {
-        onMutationStart();
-        const mutationId = generateNewMutationId();
+  const runMutation = (
+    mutateOptions: MutationHookOptions<TData, TVariables> = {}
+  ) => {
+    return new Promise((resolve, reject) => {
+      onMutationStart();
+      const mutationId = generateNewMutationId();
 
-        // merge together variables from baseOptions (if specified)
-        // and the execution
-        const mutateVariables = options.variables
-          ? { ...options.variables, ...mutateOptions.variables }
-          : mutateOptions.variables;
+      // merge together variables from baseOptions (if specified)
+      // and the execution
+      const mutateVariables = options.variables
+        ? { ...options.variables, ...mutateOptions.variables }
+        : mutateOptions.variables;
 
-        client
-          .mutate({
-            mutation,
-            ...options,
-            ...mutateOptions,
-            variables: mutateVariables,
-          })
-          .then(response => {
-            onMutationCompleted(response, mutationId, mutateVariables);
-            resolve(response as ExecutionResult<TData>);
-          })
-          .catch(err => {
-            onMutationError(err, mutationId, mutateVariables);
-            if (rethrow) {
-              reject(err);
-              return;
-            }
-            resolve(({} as unknown) as ExecutionResult<TData>);
-          });
-      });
-    },
-    [client, mutation, baseOptions, objToKey(baseOptions)]
-  );
+      client
+        .mutate({
+          mutation,
+          ...options,
+          ...mutateOptions,
+          variables: mutateVariables,
+        })
+        .then(response => {
+          onMutationCompleted(response, mutationId, mutateVariables);
+          resolve(response as ExecutionResult<TData>);
+        })
+        .catch(err => {
+          onMutationError(err, mutationId, mutateVariables);
+          if (rethrow) {
+            reject(err);
+            return;
+          }
+          resolve(({} as unknown) as ExecutionResult<TData>);
+        });
+    });
+  };
 
   return [runMutation, result];
 }

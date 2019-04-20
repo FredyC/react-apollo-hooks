@@ -14,8 +14,8 @@ import ApolloClient, {
 import { DocumentNode } from 'graphql';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useApolloClient } from './ApolloContext';
+import { ApolloOperationError } from './ApolloOperationError';
 import { SSRContext } from './internal/SSRContext';
-import actHack from './internal/actHack';
 import {
   getCachedObservableQuery,
   invalidateCachedObservableQuery,
@@ -148,7 +148,11 @@ export function useQuery<
         data,
         error:
           result.errors && result.errors.length > 0
-            ? new ApolloError({ graphQLErrors: result.errors })
+            ? new ApolloOperationError(
+                new ApolloError({ graphQLErrors: result.errors }),
+                query,
+                variables
+              )
             : result.error,
         errors: result.errors,
         loading: result.loading,
@@ -169,13 +173,7 @@ export function useQuery<
       }
 
       const invalidateCurrentResult = () => {
-        // A hack to get rid React warnings during tests. The default
-        // implementation of `actHack` just invokes the callback immediately.
-        // In tests, it's replaced with `act` from react-testing-library.
-        // A better solution welcome.
-        actHack(() => {
-          setResponseId(x => x + 1);
-        });
+        setResponseId(x => x + 1);
       };
       const subscription = observableQuery.subscribe(
         invalidateCurrentResult,

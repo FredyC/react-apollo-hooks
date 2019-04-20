@@ -13,8 +13,6 @@ import { SAMPLE_TASKS } from '../__testutils__/data';
 import noop from '../__testutils__/noop';
 import wait from '../__testutils__/wait';
 
-jest.mock('../internal/actHack');
-
 const TASKS_QUERY = gql`
   query TasksQuery {
     tasks {

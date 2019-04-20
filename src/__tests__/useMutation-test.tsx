@@ -1,12 +1,7 @@
 import gql from 'graphql-tag';
 import React from 'react';
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  testHook,
-} from 'react-testing-library';
+import { renderHook } from 'react-hooks-testing-library';
+import { act, cleanup, fireEvent, render } from 'react-testing-library';
 
 import { GraphQLError } from 'graphql';
 import { ApolloProvider, useMutation, useQuery } from '..';
@@ -16,8 +11,6 @@ import createClient from '../__testutils__/createClient';
 import { SAMPLE_TASKS } from '../__testutils__/data';
 import noop from '../__testutils__/noop';
 import wait from '../__testutils__/wait';
-
-jest.mock('../internal/actHack');
 
 const TASKS_QUERY = gql`
   query TasksQuery {
@@ -271,7 +264,7 @@ it('should allow to pass options forwarded to the mutation', async () => {
 it('should provide called property for the first time call', async () => {
   const client = createClient({ mocks: TASKS_MOCKS });
 
-  const { result } = testHook(
+  const { result } = renderHook(
     () =>
       useMutation<any, { input: Partial<TaskFragment> }>(ADD_TASK_MUTATION, {
         variables: {
@@ -306,7 +299,7 @@ it('should provide called property for the first time call', async () => {
 it('should provide loading property during the mutation processing', async () => {
   const client = createClient({ mocks: TASKS_MOCKS });
 
-  const { result } = testHook(
+  const { result } = renderHook(
     () =>
       useMutation<any, { input: Partial<TaskFragment> }>(ADD_TASK_MUTATION, {
         variables: {
@@ -344,7 +337,7 @@ it('should provide error and hasError properties for network error', async () =>
   ];
   const client = createClient({ mocks });
 
-  const { result } = testHook(
+  const { result } = renderHook(
     () =>
       useMutation<any, { input: Partial<TaskFragment> }>(ADD_TASK_MUTATION, {
         rethrow: false,
@@ -402,7 +395,7 @@ it('should provide error and hasError properties for graphql errors', async () =
   ];
   const client = createClient({ mocks });
 
-  const { result } = testHook(
+  const { result } = renderHook(
     () =>
       useMutation<any, { input: Partial<TaskFragment> }>(ADD_TASK_MUTATION, {
         rethrow: false,
@@ -460,7 +453,7 @@ it('should not throw error with rethrow = false', async () => {
 
   const onError = jest.fn();
 
-  const { result } = testHook(
+  const { result } = renderHook(
     () =>
       useMutation<any, { input: Partial<TaskFragment> }>(ADD_TASK_MUTATION, {
         rethrow: false,
@@ -500,7 +493,7 @@ it('should throw error asynchronously with rethrow = true', async () => {
 
   const onError = jest.fn();
 
-  const { result } = testHook(
+  const { result } = renderHook(
     () =>
       useMutation<any, { input: Partial<TaskFragment> }>(ADD_TASK_MUTATION, {
         variables: {
