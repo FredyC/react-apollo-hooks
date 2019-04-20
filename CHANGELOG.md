@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/fredyc/react-apollo-hooks/compare/v0.4.5...v1.0.0) (2019-04-20)
+
+
+* Release as @speedlo/react-apollo-hooks ([4885f79](https://github.com/fredyc/react-apollo-hooks/commit/4885f79))
+
+
+### BREAKING CHANGES
+
+* in useMutation function result.
+
+Use ApolloOperationError to deliver more details
+about errors in all three operations.
+
+Get rid of actHack
+
+Simplify build with TypeScript, no need for Babel
+
+
+
 <a name="0.4.5"></a>
 ## [0.4.5](https://github.com/trojanowski/react-apollo-hooks/compare/v0.4.4...v0.4.5) (2019-04-06)
 
