@@ -157,6 +157,7 @@ export function useMutation<TData, TVariables = OperationVariables>(
             onMutationError(err, mutationId);
             if (rethrow) {
               reject(err);
+              return;
             }
             resolve(({} as unknown) as ExecutionResult<TData>);
           });
