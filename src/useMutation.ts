@@ -63,6 +63,7 @@ export function useMutation<TData, TVariables = OperationVariables>(
   baseOptions: MutationHookOptions<TData, TVariables> = {}
 ): [MutationFn<TData, TVariables>, MutationResult<TData>] {
   const client = useApolloClient(baseOptions.client);
+  const isMounted = React.useRef(false);
   const [result, setResult] = React.useState<MutationResult<TData>>(
     getInitialState
   );
@@ -70,19 +71,25 @@ export function useMutation<TData, TVariables = OperationVariables>(
   const { rethrow = true, ...options } = baseOptions;
 
   const mergeResult = (partialResult: Partial<MutationResult<TData>>) => {
-    setResult(prev => ({
-      ...prev,
-      ...partialResult,
-    }));
+    if (isMounted.current === true) {
+      setResult(prev => ({
+        ...prev,
+        ...partialResult,
+      }));
+    }
   };
 
+  React.useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  });
+
   // reset state if client instance changes
-  React.useEffect(
-    () => {
-      mergeResult(getInitialState());
-    },
-    [client]
-  );
+  React.useEffect(() => {
+    mergeResult(getInitialState());
+  }, [client]);
 
   const { generateNewMutationId, isMostRecentMutation } = useMutationTracking();
 
