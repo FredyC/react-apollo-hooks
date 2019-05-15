@@ -131,83 +131,76 @@ export function useQuery<
 
   const [responseId, setResponseId] = useState(0);
 
-  const currentResult = useMemo<QueryHookResult<TData, TVariables>>(
-    () => {
-      const helpers = {
-        fetchMore: observableQuery.fetchMore.bind(observableQuery),
-        refetch: observableQuery.refetch.bind(observableQuery),
-        startPolling: observableQuery.startPolling.bind(observableQuery),
-        stopPolling: observableQuery.stopPolling.bind(observableQuery),
-        updateQuery: observableQuery.updateQuery.bind(observableQuery),
+  const currentResult = useMemo<QueryHookResult<TData, TVariables>>(() => {
+    const helpers = {
+      fetchMore: observableQuery.fetchMore.bind(observableQuery),
+      refetch: observableQuery.refetch.bind(observableQuery),
+      startPolling: observableQuery.startPolling.bind(observableQuery),
+      stopPolling: observableQuery.stopPolling.bind(observableQuery),
+      updateQuery: observableQuery.updateQuery.bind(observableQuery),
+    };
+
+    const result = observableQuery.currentResult();
+
+    // return the old result data when there is an error
+    let data = result.data as TData;
+    if (result.error || result.errors) {
+      data = {
+        ...result.data,
+        ...(observableQuery.getLastResult() || {}).data,
       };
+    }
 
-      const result = observableQuery.currentResult();
-
-      // return the old result data when there is an error
-      let data = result.data as TData;
-      if (result.error || result.errors) {
-        data = {
-          ...result.data,
-          ...(observableQuery.getLastResult() || {}).data,
-        };
-      }
-
-      if (shouldSkip) {
-        // Taken from https://github.com/apollographql/react-apollo/blob/5cb63b3625ce5e4a3d3e4ba132eaec2a38ef5d90/src/Query.tsx#L376-L381
-        return {
-          ...helpers,
-          data: undefined,
-          error: undefined,
-          loading: false,
-          networkStatus: undefined,
-        };
-      }
-
+    if (shouldSkip) {
+      // Taken from https://github.com/apollographql/react-apollo/blob/5cb63b3625ce5e4a3d3e4ba132eaec2a38ef5d90/src/Query.tsx#L376-L381
       return {
         ...helpers,
-        data,
-        error:
-          result.errors && result.errors.length > 0
-            ? new ApolloOperationError(
-                new ApolloError({ graphQLErrors: result.errors }),
-                query,
-                variables
-              )
-            : result.error,
-        errors: result.errors,
-        loading: result.loading,
-        // don't try to return `networkStatus` when suspense it's used
-        // because it's unreliable in that case
-        // https://github.com/trojanowski/react-apollo-hooks/pull/68
-        networkStatus: suspend ? undefined : result.networkStatus,
-        partial: result.partial,
+        data: undefined,
+        error: undefined,
+        loading: false,
+        networkStatus: undefined,
       };
-    },
-    [shouldSkip, responseId, observableQuery]
-  );
+    }
 
-  useEffect(
-    () => {
-      if (shouldSkip) {
-        return;
-      }
+    return {
+      ...helpers,
+      data,
+      error: new ApolloOperationError(
+        result.errors && result.errors.length > 0
+          ? new ApolloError({ graphQLErrors: result.errors })
+          : new ApolloError({ ...result.error }),
+        query,
+        variables
+      ),
+      errors: result.errors,
+      loading: result.loading,
+      // don't try to return `networkStatus` when suspense it's used
+      // because it's unreliable in that case
+      // https://github.com/trojanowski/react-apollo-hooks/pull/68
+      networkStatus: suspend ? undefined : result.networkStatus,
+      partial: result.partial,
+    };
+  }, [shouldSkip, responseId, observableQuery]);
 
-      const invalidateCurrentResult = () => {
-        setResponseId(x => x + 1);
-      };
-      const subscription = observableQuery.subscribe(
-        invalidateCurrentResult,
-        invalidateCurrentResult
-      );
+  useEffect(() => {
+    if (shouldSkip) {
+      return;
+    }
 
-      invalidateCachedObservableQuery(client, watchQueryOptions);
+    const invalidateCurrentResult = () => {
+      setResponseId(x => x + 1);
+    };
+    const subscription = observableQuery.subscribe(
+      invalidateCurrentResult,
+      invalidateCurrentResult
+    );
 
-      return () => {
-        subscription.unsubscribe();
-      };
-    },
-    [shouldSkip, observableQuery]
-  );
+    invalidateCachedObservableQuery(client, watchQueryOptions);
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [shouldSkip, observableQuery]);
 
   ensureSupportedFetchPolicy(suspend, fetchPolicy);
 
