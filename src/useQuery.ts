@@ -28,6 +28,7 @@ export interface QueryHookState<TData>
     'error' | 'errors' | 'loading' | 'partial'
   > {
   data?: TData;
+  error?: ApolloOperationError;
   // networkStatus is undefined for skipped queries or the ones using suspense
   networkStatus: NetworkStatus | undefined;
 }
@@ -162,16 +163,21 @@ export function useQuery<
       };
     }
 
+    let apolloError: ApolloError | undefined;
+    if (result.errors && result.errors.length) {
+      apolloError = new ApolloError({ graphQLErrors: result.errors });
+    } else if (result.error) {
+      apolloError = new ApolloError({ ...result.error });
+    }
+
+    const error = apolloError
+      ? new ApolloOperationError(apolloError, query, variables)
+      : undefined;
+
     return {
       ...helpers,
       data,
-      error: new ApolloOperationError(
-        result.errors && result.errors.length > 0
-          ? new ApolloError({ graphQLErrors: result.errors })
-          : new ApolloError({ ...result.error }),
-        query,
-        variables
-      ),
+      error,
       errors: result.errors,
       loading: result.loading,
       // don't try to return `networkStatus` when suspense it's used
