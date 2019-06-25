@@ -7,12 +7,12 @@ Use [Apollo Client](https://github.com/apollographql/apollo-client) as React
 
 # Installation
 
-`npm install react-apollo-hooks`
+`npm i @speedlo/react-apollo-hooks`
 
 Or if using [yarn](https://yarnpkg.com/en/)
 
 
-`yarn add react-apollo-hooks`
+`yarn add @speedlo/react-apollo-hooks `
 
 # Example
 
