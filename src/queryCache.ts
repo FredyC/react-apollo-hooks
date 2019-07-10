@@ -19,7 +19,7 @@ export function getCachedObservableQuery<TData, TVariables>(
   const cacheKey = getCacheKey(options);
   let observableQuery = queriesForClient.get(cacheKey);
   if (observableQuery == null) {
-    observableQuery = client.watchQuery(options);
+    observableQuery = client.watchQuery<TData, TVariables>(options);
     queriesForClient.set(cacheKey, observableQuery);
   }
   return observableQuery;

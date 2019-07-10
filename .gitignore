@@ -1,5 +1,5 @@
-/es
+/dist
 /node_modules
-/lib
 npm-debug.log*
 yarn-error.log*
+.rts2_cache*

@@ -137,7 +137,7 @@ export function useQuery<
       refetch: observableQuery.refetch.bind(observableQuery),
       startPolling: observableQuery.startPolling.bind(observableQuery),
       stopPolling: observableQuery.stopPolling.bind(observableQuery),
-      updateQuery: observableQuery.updateQuery.bind(observableQuery),
+      updateQuery: (mapFn: any) => observableQuery.updateQuery(mapFn),
     };
 
     const result = observableQuery.currentResult();

@@ -3,18 +3,14 @@
   "version": "1.0.5",
   "description": "",
   "sideEffects": false,
-  "main": "lib/index.js",
-  "module": "es/index.js",
-  "typings": "lib/index.d.ts",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "module": "dist/react-apollo-hooks.esm.js",
   "files": [
-    "es",
-    "lib"
+    "dist"
   ],
   "scripts": {
-    "build:cjs": "rimraf lib && tsc -p tsconfig.build.json --outDir lib -m commonjs",
-    "build:es": "rimraf es && tsc -p tsconfig.build.json --outDir es -m ESNext",
-    "build:typings": "tsc -p tsconfig.typings.json",
-    "build": "run-p build:cjs build:es && npm run build:typings",
+    "build": "tsdx build --tsconfig ./tsconfig.build.json",
     "typings-check": "tsc --noEmit",
     "format-check": "prettier --list-different \"**/*.{js,ts,tsx}\"",
     "format": "prettier --write \"**/*.{js,ts,tsx}\"",
@@ -101,6 +97,7 @@
     "react-testing-library": "^6.1.2",
     "rimraf": "^2.6.2",
     "standard-version": "^4.4.0",
+    "tsdx": "^0.7.2",
     "tslint": "^5.12.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-react": "^3.6.0",
