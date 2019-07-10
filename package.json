@@ -1,6 +1,6 @@
 {
   "name": "@speedlo/react-apollo-hooks",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "sideEffects": false,
   "main": "lib/index.js",
