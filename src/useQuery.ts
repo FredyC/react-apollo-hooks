@@ -4,10 +4,10 @@ import ApolloClient, {
   ApolloQueryResult,
   FetchMoreOptions,
   FetchMoreQueryOptions,
-  FetchPolicy,
   NetworkStatus,
   ObservableQuery,
   OperationVariables,
+  WatchQueryFetchPolicy,
   WatchQueryOptions,
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
@@ -226,7 +226,7 @@ export function useQuery<
 
 function ensureSupportedFetchPolicy(
   suspend: boolean,
-  fetchPolicy?: FetchPolicy
+  fetchPolicy?: WatchQueryFetchPolicy
 ) {
   if (suspend && fetchPolicy && fetchPolicy !== 'cache-first') {
     throw new Error(
